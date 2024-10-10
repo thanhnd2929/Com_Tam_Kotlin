@@ -129,7 +129,7 @@ fun ProductDetailPage(productId: String, modifier: Modifier = Modifier) {
                 ) {
                     // Nút giảm số lượng
                     Icon(
-                        painter = painterResource(R.drawable.ic_minus), // Thay icon theo tài nguyên của bạn
+                        painter = painterResource(R.drawable.ic_minus),
                         contentDescription = "Decrease quantity",
                         modifier = Modifier
                             .clickable {

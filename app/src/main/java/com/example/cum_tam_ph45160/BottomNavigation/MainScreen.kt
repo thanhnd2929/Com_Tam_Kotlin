@@ -45,9 +45,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.cum_tam_ph45160.Model.Cart.CartData
 import com.example.cum_tam_ph45160.Pages.AddDishPage
 import com.example.cum_tam_ph45160.Pages.AddTypeDish
 import com.example.cum_tam_ph45160.Pages.CartPage
+import com.example.cum_tam_ph45160.Pages.CheckOut
 import com.example.cum_tam_ph45160.Pages.HomePage
 import com.example.cum_tam_ph45160.Pages.ManageDishPage
 import com.example.cum_tam_ph45160.Pages.ManagePage
@@ -57,7 +59,7 @@ import com.example.cum_tam_ph45160.Pages.SupportPage
 import com.example.cum_tam_ph45160.Pages.UpdateInfoPage
 import com.example.cum_tam_ph45160.R
 import com.example.cum_tam_ph45160.toColor
-
+import com.google.gson.Gson
 
 
 @Preview(showBackground = true, showSystemUi = true)
@@ -69,6 +71,8 @@ fun MainScreen(modifier: Modifier = Modifier) {
 
     var showHeader by remember { mutableStateOf(true) }
     var showBottomBar by remember { mutableStateOf(true) }
+
+
 
 
     LaunchedEffect(navController) {
@@ -116,13 +120,21 @@ fun MainScreen(modifier: Modifier = Modifier) {
         ) {
             // Cấu hình các route
             composable("home") { HomePage(navController) }
-            composable("cart") { CartPage() }
+            composable("cart") { CartPage(navController) }
             composable("manage") { ManagePage(navController) }
             composable("support") { SupportPage() }
             composable("dish") { ManageDishPage(navController) }
             composable("type_dish") { ManageTypeOfDishPage(navController) }
             composable("update_info") { UpdateInfoPage() }
             composable("add_dish") { AddDishPage() }
+            composable("checkout/{cartJson}") { backStackEntry ->
+                val cartJson = backStackEntry.arguments?.getString("cartJson")
+                // Chuyển JSON thành danh sách CartData
+                val gson = Gson() // Khởi tạo Gson
+                val carts = gson.fromJson(cartJson, Array<CartData>::class.java).toList()
+
+                CheckOut(carts = carts, navController = navController)
+            }
             composable("add_type_dish") { AddTypeDish() }
             composable("detail/{productId}") { backStackEntry ->
                 // Lấy id từ đường dẫn điều hướng

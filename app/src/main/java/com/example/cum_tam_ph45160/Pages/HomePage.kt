@@ -1,7 +1,6 @@
 package com.example.cum_tam_ph45160.Pages
 
 import android.content.Context
-import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -152,11 +151,6 @@ fun ProductItem(product: ProductData, context: Context, navController: NavContro
         Row(
             modifier = Modifier.padding(16.dp)
         ) {
-
-
-            val imageUri = Uri.parse(product.image_url)
-            Log.d("IMG", imageUri.toString())
-
 
 
             DisplayImageFromUri(product.image_url)

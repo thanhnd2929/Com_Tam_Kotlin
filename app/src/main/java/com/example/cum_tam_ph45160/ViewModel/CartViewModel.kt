@@ -16,6 +16,19 @@ class CartViewModel : ViewModel() {
     private val _carts = MutableLiveData<List<CartData>?>()
     val carts: MutableLiveData<List<CartData>?> get() = _carts
 
+    // Trong CartViewModel
+    fun updateCartQuantity(productId: String, newQuantity: Int) {
+        val updatedCart = _carts.value?.map {
+            if (it.product._id == productId) {
+                it.copy(quantity = newQuantity)
+            } else {
+                it
+            }
+        }
+        _carts.value = updatedCart
+    }
+
+
 
     fun fetchCart() {
         apiService.getCart().enqueue(object : Callback<List<CartData>?> {
@@ -37,7 +50,8 @@ class CartViewModel : ViewModel() {
                     // Xử lý khi response không thành công
                     Log.e("Err", "Server error: ${response.code()} ${response.message()}")
                     _carts.value = emptyList() // Trả về danh sách rỗng khi có lỗi
-                }            }
+                }
+            }
 
             override fun onFailure(call: Call<List<CartData>?>, t: Throwable) {
                 _carts.value = emptyList() // Trả về danh sách rỗng khi gọi API thất bại
@@ -46,9 +60,9 @@ class CartViewModel : ViewModel() {
         })
     }
 
-
-
-
-
+    fun checkOut() {
 
     }
+
+
+}

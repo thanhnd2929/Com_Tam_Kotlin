@@ -1,16 +1,25 @@
 package com.example.cum_tam_ph45160.Pages
 
+import android.content.Context
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -19,194 +28,206 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.auth0.android.jwt.JWT
+import com.example.cum_tam_ph45160.Model.Cart.CartData
+import com.example.cum_tam_ph45160.Model.Checkout.CheckoutItem
+import com.example.cum_tam_ph45160.ViewModel.CheckoutViewModel
 import com.example.cum_tam_ph45160.toColor
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 
-@Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun CheckOut(modifier: Modifier = Modifier) {
+fun CheckOut(carts: List<CartData>, navController: NavController, modifier: Modifier = Modifier) {
     var showDialog by remember { mutableStateOf(false) } // State để điều khiển modal
+    var name by remember { mutableStateOf("") }
+    var address by remember { mutableStateOf("") }
+    var phoneNumber by remember { mutableStateOf("") }
+
+    val cartJson = navController.currentBackStackEntry?.arguments?.getString("cartJson")?.let {
+        URLDecoder.decode(it, StandardCharsets.UTF_8.toString())
+    }
+
+    Log.d("555", cartJson.toString())
+
+    val context = LocalContext.current
+    val checkouViewModel: CheckoutViewModel = remember { CheckoutViewModel() }
+
+    val sharedPref = context.getSharedPreferences("MY_APP_PREFS", Context.MODE_PRIVATE)
+    val token = sharedPref.getString("auth_token", null)
+
+    var userId by remember { mutableStateOf<String?>(null) } // Khai báo userId tại đây
+
+    if (token != null) {
+        val jwt = JWT(token)
+        userId = jwt.getClaim("userId").asString()
+
+        // Kiểm tra nếu userId không null thì xử lý tiếp
+        if (userId != null) {
+            Log.d("Checkout", "User ID: $userId")
+            // Bạn có thể sử dụng userId cho các yêu cầu API hoặc hiển thị thông tin người dùng
+        } else {
+            Log.e("Checkout", "Không tìm thấy userId trong token")
+        }
+    } else {
+        Log.e("Checkout", "Token không tồn tại trong SharedPreferences")
+    }
 
     Column(
         modifier = modifier
             .fillMaxSize()
             .background("#F6F6F6".toColor),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
     ) {
-        CustomerInfo(
-            name = "Nguyễn Văn A",
-            address = "Tây Mỗ - Nam Từ Liêm - Hà Nội",
-            phone = "0123456789"
-        )
 
-        PaymentInfo(
-            cardNumber = "**** **** **** 1234",
-            expirationDate = "12/25",
-            cardHolderName = "Nguyễn Văn A"
-        )
 
-        TotalAmountCard("200.000") {
-            showDialog = true // Hiện dialog khi nhấn nút thanh toán
-        }
-    }
-
-    // Modal xác nhận thanh toán
-    if (showDialog) {
-        AlertDialog(
-            onDismissRequest = {
-                showDialog = false // Đóng dialog khi nhấn ra ngoài
-            },
-            title = {
-                Text(text = "Xác Nhận Thanh Toán")
-            },
-            text = {
-                Text(text = "Bạn có chắc chắn muốn thanh toán không?")
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        // Xử lý xác nhận thanh toán ở đây
-                        showDialog = false // Đóng dialog
-                    },
-                    colors = ButtonDefaults.buttonColors(Color.Green)
-                ) {
-                    Text("Có")
-                }
-            },
-            dismissButton = {
-                Button(
-                    onClick = {
-                        showDialog = false // Đóng dialog khi nhấn nút "Không"
-                    },
-                    colors = ButtonDefaults.buttonColors(Color.Red)
-                ) {
-                    Text("Không")
-                }
-            }
-        )
-    }
-}
-
-@Composable
-fun TotalAmountCard(totalAmount: String, onPaymentClick: () -> Unit) {
-    // Card để hiển thị tổng tiền và nút thanh toán
-    Card(
-        modifier = Modifier
-            .padding(16.dp)
-            .fillMaxWidth(),
-        colors = CardDefaults.cardColors("#FF9800".toColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
-        Column(
+        Card(
             modifier = Modifier
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(16.dp)
+                .background("#F6F6F6".toColor)
+                .fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+            elevation = CardDefaults.cardElevation(4.dp),
+            colors = CardDefaults.cardColors("#DCDCDC".toColor)
         ) {
-            Text(
-                text = "Tổng Tiền: $totalAmount",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-
-            // Thêm khoảng cách giữa tổng tiền và nút thanh toán
-            Button(
-                onClick = onPaymentClick, // Gọi hàm để hiện dialog
-                colors = ButtonDefaults.buttonColors(Color.White),
+            Column(
                 modifier = Modifier
-                    .padding(top = 16.dp)
-                    .fillMaxWidth()
+                    .padding(16.dp)
             ) {
                 Text(
-                    text = "Thanh Toán",
-                    fontSize = 18.sp,
-                    color = Color.Black,
-                    fontWeight = FontWeight.Bold
+                    text = "Thông tin thanh toán",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.padding(bottom = 8.dp)
+
+                )
+
+                Spacer(modifier = Modifier.height(8.dp)) // Khoảng cách giữa các input
+                // Input Address
+                OutlinedTextField(
+                    value = address,
+                    onValueChange = { address = it },
+                    label = { Text("Địa chỉ") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Input Phone Number
+                OutlinedTextField(
+                    value = phoneNumber,
+                    onValueChange = { phoneNumber = it },
+                    label = { Text("Số điện thoại") },
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
         }
-    }
-}
 
-@Composable
-fun PaymentInfo(
-    cardNumber: String,
-    expirationDate: String,
-    cardHolderName: String
-) {
-    // Card để hiển thị thông tin thanh toán
-    Card(
-        modifier = Modifier
-            .padding(16.dp)
-            .fillMaxWidth(),
-        colors = CardDefaults.cardColors("#4CAF50".toColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
-        Column(
+        // Button thanh toán
+        Button(
+            onClick = { showDialog = true }, // Mở dialog khi bấm nút
             modifier = Modifier
-                .padding(16.dp),
-            horizontalAlignment = Alignment.Start
+                .width(180.dp)
+                .padding(vertical = 16.dp), // Khoảng cách giữa button và các phần khác
+            colors = ButtonDefaults.buttonColors("#FE724C".toColor)
         ) {
-            Text(
-                text = "Số Thẻ: $cardNumber",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-            Text(
-                text = "Ngày Hết Hạn: $expirationDate",
-                fontSize = 16.sp,
-                color = Color.White
-            )
-            Text(
-                text = "Tên Chủ Thẻ: $cardHolderName",
-                fontSize = 16.sp,
-                color = Color.White
+            Text("Thanh toán")
+        }
+
+        // Dialog hiển thị khi người dùng bấm nút
+        if (showDialog) {
+
+            AlertDialog(
+                onDismissRequest = { showDialog = false }, // Đóng dialog khi nhấn ra ngoài
+                title = { Text("Xác nhận thanh toán") },
+                text = { Text("Bạn có muốn thanh toán không?", fontSize = 16.sp) },
+                confirmButton = {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center // Căn giữa các nút
+                    ) {
+                        Button(
+                            onClick = {
+                                if (userId != null) {
+                                    Payment(
+                                        carts,
+                                        address,
+                                        phoneNumber,
+                                        userId!!,
+                                        context,
+                                        checkouViewModel
+                                    )
+                                    address = ""
+                                    phoneNumber = ""
+                                } else {
+                                    Log.e("Checkout", "User ID không tồn tại, không thể thanh toán")
+                                }
+
+                                showDialog = false
+
+                            },
+                            modifier = Modifier
+                                .width(120.dp)
+                                .padding(horizontal = 8.dp)
+                        ) {
+                            Text("Đồng ý")
+                        }
+
+                        Button(
+                            onClick = { showDialog = false },
+                            modifier = Modifier
+                                .width(120.dp)
+                                .padding(horizontal = 8.dp)
+                        ) {
+                            Text("Hủy")
+                        }
+                    }
+                },
             )
         }
+
+
     }
+
+
 }
 
-@Composable
-fun CustomerInfo(
-    name: String,
+fun Payment(
+    carts: List<CartData>,
     address: String,
-    phone: String
+    phoneNumber: String,
+    userId: String,
+    context: Context,
+    checkoutViewModel: CheckoutViewModel
 ) {
-    // Card để hiển thị thông tin khách hàng
-    Card(
-        modifier = Modifier
-            .padding(16.dp)
-            .fillMaxWidth(),
-        colors = CardDefaults.cardColors("#FE724C".toColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(16.dp),
-            horizontalAlignment = Alignment.Start
-        ) {
-            Text(
-                text = "Khách Hàng: $name",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black
-            )
-            Text(
-                text = "Địa chỉ: $address",
-                fontSize = 16.sp,
-                color = Color.Black
-            )
-            Text(
-                text = "Số Điện Thoại: $phone",
-                fontSize = 16.sp,
-                color = Color.Black
-            )
-        }
+    // Chuyển danh sách CartData thành danh sách CheckoutItem
+    val items = carts.map { cartData ->
+        CheckoutItem(
+            productId = cartData.product._id,  // Giả sử mỗi sản phẩm có thuộc tính productId
+            quantity = cartData.quantity,           // Giả sử mỗi sản phẩm có thuộc tính số lượng (quantity)
+        )
     }
+    checkoutViewModel.checkout(
+        items = items,
+        address = address,
+        phoneNumber = phoneNumber,
+        onSuccess = {
+            Log.d("Checkout", "Thanh toán thành công")
+            Toast.makeText(context, "Thanh toán thành công", Toast.LENGTH_SHORT)
+                .show() // Hiển thị Toast
+
+        },
+        onError = { errorMessage ->
+            Log.e("Checkout", "Lỗi: $errorMessage")
+            Toast.makeText(context, "Lỗi: $errorMessage", Toast.LENGTH_SHORT)
+                .show() // Hiển thị Toast lỗi
+        }
+
+    )
 }
+
+
+

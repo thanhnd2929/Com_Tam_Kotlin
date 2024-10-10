@@ -15,7 +15,7 @@ data class CartResponse(
 
 data class CartData(
     val product: ProductData, // Dữ liệu sản phẩm
-    val quantity: Int,
+    var quantity: Int,
     val _id: String // ID của sản phẩm trong giỏ hàng
 )
 

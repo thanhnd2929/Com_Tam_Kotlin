@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -25,6 +26,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -40,6 +43,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.auth0.android.jwt.JWT
 import com.example.cum_tam_ph45160.Model.Login.LoginRequest
 import com.example.cum_tam_ph45160.Model.Login.LoginResponse
 import com.example.cum_tam_ph45160.Retrofit.RetrofitClient
@@ -120,7 +124,13 @@ fun loginUser(email: String, password: String, context: Context) {
         override fun onResponse(call: Call<LoginResponse?>, response: Response<LoginResponse?>) {
             if (response.isSuccessful) {
                 val token = response.body()?.token
+//                val userId = response.body()?.userId // Lấy userId từ API trả về
+
+                val jwt = JWT(token!!)
+                val userId = jwt.getClaim("userId").asString()
+
                 Log.d("Login", "Đăng nhập thành công, token: $token")
+                Log.d("Login", "Đăng nhập thành công, userId: $userId")
                 Toast.makeText(context, "Đăng nhập thành công", Toast.LENGTH_SHORT).show()
 
 
@@ -128,6 +138,7 @@ fun loginUser(email: String, password: String, context: Context) {
                 val sharedPref = context.getSharedPreferences("MY_APP_PREFS", MODE_PRIVATE)
                 val editor = sharedPref.edit()
                 editor.putString("auth_token", token)
+                editor.putString("user_id", userId) // Lưu userId
                 RetrofitClient.token = token
                 editor.apply()
 
@@ -154,6 +165,7 @@ fun Login(modifier: Modifier = Modifier) {
 
     val email = remember { mutableStateOf("") }
     val password = remember { mutableStateOf("") }
+    val saveLogin = remember { mutableStateOf(false) } // State để lưu trạng thái Switch
 
     val currentContext = LocalContext.current;
 
@@ -216,6 +228,27 @@ fun Login(modifier: Modifier = Modifier) {
             value = password.value,
             onValueChange = {password.value = it}
         )
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(start = 16.dp).fillMaxWidth()
+        ) {
+
+            Switch(
+                checked = saveLogin.value,
+                onCheckedChange = { saveLogin.value = it },
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = "#FE724C".toColor,
+                    uncheckedThumbColor = Color.Gray
+                )
+            )
+            Text(
+                text = " Save login info",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Normal,
+                modifier = Modifier.padding(end = 8.dp)
+            )
+        }
 
         Text(
             text = "Forgot password?",

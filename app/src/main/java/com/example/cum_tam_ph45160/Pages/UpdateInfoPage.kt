@@ -23,9 +23,10 @@ import com.example.cum_tam_ph45160.toColor
 fun UpdateInfoPage() {
     // Trạng thái lưu trữ giá trị nhập vào
     val phoneNumber = remember { mutableStateOf("") }
-    val street = remember { mutableStateOf("") }
-    val ward = remember { mutableStateOf("") }
-    val houseNumber = remember { mutableStateOf("") }
+    val address = remember { mutableStateOf("") }
+    val name = remember { mutableStateOf("") }
+    val email = remember { mutableStateOf("") }
+
 
     Column(
         modifier = Modifier
@@ -34,6 +35,23 @@ fun UpdateInfoPage() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+
+        // Ô nhập tên
+        TextField2(
+            title = "Tên",
+            placeholder = "Nhập tên",
+            value = name.value,
+            onValueChange = { name.value = it }
+        )
+
+        // Ô nhập email
+        TextField2(
+            title = "Email",
+            placeholder = "Nhập email",
+            value = email.value,
+            onValueChange = { email.value = it }
+        )
+
         // Ô nhập số điện thoại
         TextField2(
             title = "Số điện thoại",
@@ -44,27 +62,13 @@ fun UpdateInfoPage() {
 
         // Ô nhập đường
         TextField2(
-            title = "Đường",
-            placeholder = "Nhập đường",
-            value = street.value,
-            onValueChange = { street.value = it }
+            title = "Địa chỉ",
+            placeholder = "Nhập địa chỉ của bạn",
+            value = address.value,
+            onValueChange = { address.value = it }
         )
 
-        // Ô nhập phường
-        TextField2(
-            title = "Phường",
-            placeholder = "Nhập phường",
-            value = ward.value,
-            onValueChange = { ward.value = it }
-        )
 
-        // Ô nhập nhà
-        TextField2(
-            title = "Số Nhà",
-            placeholder = "Nhập số nhà",
-            value = houseNumber.value,
-            onValueChange = { houseNumber.value = it }
-        )
 
         // Nút cập nhật thông tin
         Button(

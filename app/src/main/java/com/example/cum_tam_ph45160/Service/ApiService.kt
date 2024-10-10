@@ -3,8 +3,11 @@ package com.example.cum_tam_ph45160.Service
 import com.example.cum_tam_ph45160.Model.Cart.CartData
 import com.example.cum_tam_ph45160.Model.Cart.CartRequest
 import com.example.cum_tam_ph45160.Model.Cart.CartResponse
+import com.example.cum_tam_ph45160.Model.Checkout.CheckoutRequest
+import com.example.cum_tam_ph45160.Model.Checkout.CheckoutResponse
 import com.example.cum_tam_ph45160.Model.Login.LoginRequest
 import com.example.cum_tam_ph45160.Model.Login.LoginResponse
+import com.example.cum_tam_ph45160.Model.Order.Order
 import com.example.cum_tam_ph45160.Model.Product.ProductData
 import com.example.cum_tam_ph45160.Model.Product.ProductRequest
 import com.example.cum_tam_ph45160.Model.Product.ProductResponse
@@ -50,10 +53,15 @@ interface ApiService {
     @POST("products/cart")
     fun addToCart(@Body cartRequest: CartRequest) : Call<CartResponse>
 
-//    @GET("products/get-cart")
-//    fun getCart() : Call<CartResponse>
 
     @GET("products/get-cart")
     fun getCart() : Call<List<CartData>>
+
+
+    @GET("products/get-cart") // Địa chỉ API của bạn
+    fun getOrders(): Call<List<Order>>
+
+    @POST("products/checkout")
+    fun checkout(@Body checkoutRequest: CheckoutRequest): Call<CheckoutResponse>
 
 }
