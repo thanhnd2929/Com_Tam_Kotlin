@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -21,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -126,6 +128,34 @@ fun CartPage(navController: NavController, modifier: Modifier = Modifier) {
 @Composable
 fun ProductItem_2(cart: CartData, context: Context, navController: NavController, viewModelCart: CartViewModel) {
 
+    var showDeleteDialog = remember { mutableStateOf(false) }
+
+    if (showDeleteDialog.value) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog.value = false },
+            title = { Text(text = "Xác nhận xoá") },
+            text = { Text(text = "Bạn có chắc chắn muốn xoá sản phẩm này khỏi giỏ hàng?") },
+            confirmButton = {
+                Text(
+                    text = "Xoá",
+                    modifier = Modifier.clickable {
+                        viewModelCart.removeFromCart(cart.product._id) // Gọi hàm xoá sản phẩm
+                        showDeleteDialog.value = false // Đóng dialog
+                    },
+                    color = Color.Red
+                )
+            },
+            dismissButton = {
+                Text(
+                    text = "Hủy",
+                    modifier = Modifier
+                        .padding(end = 10.dp)
+                        .clickable { showDeleteDialog.value = false },
+                    color = Color.Gray
+                )
+            }
+        )
+    }
 
     Card(
         modifier = Modifier
@@ -196,6 +226,21 @@ fun ProductItem_2(cart: CartData, context: Context, navController: NavController
                             viewModelCart.updateCartQuantity(cart.product._id, cart.quantity + 1)
                         }
                 )
+
+                Icon(
+                    painter = painterResource(R.drawable.delete_24),
+                    contentDescription = "Delete item",
+                    modifier = Modifier
+                        .padding(start = 8.dp)
+                        .background(
+                            color = Color.Red,
+                            shape = RoundedCornerShape(50.dp)
+                        )
+                        .padding(8.dp)
+                        .clickable {
+                            showDeleteDialog.value = true                        },
+                    tint = Color.White // Màu của icon
+                )
             }
 
         }
@@ -209,6 +254,7 @@ fun PaymentButton(
     cartJson: String,
     checkoutViewModel: CheckoutViewModel
 ) {
+
 
 
     Row(

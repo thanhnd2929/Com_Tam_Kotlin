@@ -3,6 +3,7 @@ package com.example.cum_tam_ph45160.Pages
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -28,7 +29,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -36,6 +39,7 @@ import androidx.navigation.NavController
 import com.auth0.android.jwt.JWT
 import com.example.cum_tam_ph45160.Model.Cart.CartData
 import com.example.cum_tam_ph45160.Model.Checkout.CheckoutItem
+import com.example.cum_tam_ph45160.R
 import com.example.cum_tam_ph45160.ViewModel.CheckoutViewModel
 import com.example.cum_tam_ph45160.toColor
 import java.net.URLDecoder
@@ -44,7 +48,6 @@ import java.nio.charset.StandardCharsets
 @Composable
 fun CheckOut(carts: List<CartData>, navController: NavController, modifier: Modifier = Modifier) {
     var showDialog by remember { mutableStateOf(false) } // State để điều khiển modal
-    var name by remember { mutableStateOf("") }
     var address by remember { mutableStateOf("") }
     var phoneNumber by remember { mutableStateOf("") }
 
@@ -126,6 +129,32 @@ fun CheckOut(carts: List<CartData>, navController: NavController, modifier: Modi
             }
         }
 
+        Text(
+            text = "Chọn phương thức thanh toán",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(vertical = 16.dp)
+        )
+
+        Column (
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.SpaceEvenly // Căn đều các nút
+        ) {
+            // Button cho Momo
+            PaymentOptionButton("Momo", "#8A2BE2".toColor, R.drawable.momo)
+
+            // Button cho Zalo Pay
+            PaymentOptionButton("Zalo Pay", "#03A9F4".toColor, R.drawable.zalo)
+
+            // Button cho VN Pay
+            PaymentOptionButton("Paypal", "#FF5722".toColor, R.drawable.paypal)
+
+            // Button cho Thẻ (Card)
+            PaymentOptionButton("Visa", "#4CAF50".toColor, R.drawable.visa)
+        }
+
         // Button thanh toán
         Button(
             onClick = { showDialog = true }, // Mở dialog khi bấm nút
@@ -151,7 +180,18 @@ fun CheckOut(carts: List<CartData>, navController: NavController, modifier: Modi
                     ) {
                         Button(
                             onClick = {
-                                if (userId != null) {
+
+
+                                // Kiểm tra xem địa chỉ và số điện thoại có trống hay không
+                                if (address.isBlank()) {
+                                    Toast.makeText(context, "Vui lòng nhập địa chỉ", Toast.LENGTH_SHORT).show()
+                                }
+
+                                if (phoneNumber.isBlank()) {
+                                    Toast.makeText(context, "Vui lòng nhập số điện thoại", Toast.LENGTH_SHORT).show()
+                                }
+
+                                if (userId != null && address != null && phoneNumber != null) {
                                     Payment(
                                         carts,
                                         address,
@@ -194,6 +234,30 @@ fun CheckOut(carts: List<CartData>, navController: NavController, modifier: Modi
 
 
 }
+
+@Composable
+fun PaymentOptionButton(paymentMethod: String, color: Color, drawableResId: Int) {
+    Button(
+        onClick = { /* Xử lý logic thanh toán cho phương thức này */ },
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(50.dp)
+            .padding(horizontal = 4.dp, vertical = 4.dp),
+        colors = ButtonDefaults.buttonColors(containerColor = color)
+    ) {
+        // Thêm ảnh từ drawable trước text
+        Image(
+            painter = painterResource(id = drawableResId),
+            contentDescription = null, // Chọn mô tả phù hợp với ảnh
+            modifier = Modifier
+                .padding(end = 8.dp) // Khoảng cách giữa ảnh và text
+                .width(24.dp)
+                .height(24.dp)
+        )
+        Text(text = paymentMethod, color = Color.White, modifier = Modifier.weight(1f))
+    }
+}
+
 
 fun Payment(
     carts: List<CartData>,

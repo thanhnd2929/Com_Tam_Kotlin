@@ -40,6 +40,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -74,9 +76,10 @@ fun TextField2(
     placeholder: String,
     value: String,
     onValueChange: (String) -> Unit,
+    isPassword: Boolean = false,
     trailingIcon: @Composable (() -> Unit)? = null
 ) {
-
+    val passwordVisible = remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
             .padding(20.dp)
@@ -88,13 +91,24 @@ fun TextField2(
 
         OutlinedTextField(
             value = value,
-            modifier = Modifier
-                .width(400.dp),
+            modifier = Modifier.width(400.dp),
             onValueChange = onValueChange,
             placeholder = { Text(placeholder) },
             trailingIcon = {
                 trailingIcon?.invoke()
+                if (isPassword) {
+                    IconButton(onClick = { passwordVisible.value = !passwordVisible.value }) {
+                        Icon(
+                            painter = painterResource(
+                                if (passwordVisible.value) R.drawable.eye_24 else R.drawable.eye_24
+                            ),
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
             },
+            visualTransformation = if (isPassword && !passwordVisible.value) PasswordVisualTransformation() else VisualTransformation.None
         )
     }
 }
@@ -107,6 +121,13 @@ fun loginUser(email: String, password: String, context: Context) {
     // Kiểm tra dữ liệu đầu vào
     if (email.isEmpty() || password.isEmpty()) {
         Toast.makeText(context, "Các trường không được bỏ trống", Toast.LENGTH_SHORT).show()
+        return
+    }
+
+    // Kiểm tra định dạng email
+    val emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+"
+    if (!email.matches(emailPattern.toRegex())) {
+        Toast.makeText(context, "Địa chỉ email không hợp lệ", Toast.LENGTH_SHORT).show()
         return
     }
 
@@ -226,8 +247,10 @@ fun Login(modifier: Modifier = Modifier) {
                 }
             },
             value = password.value,
-            onValueChange = {password.value = it}
+            onValueChange = { password.value = it },
+            isPassword = true
         )
+
 
         Row(
             verticalAlignment = Alignment.CenterVertically,

@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -54,6 +55,7 @@ import com.example.cum_tam_ph45160.Pages.HomePage
 import com.example.cum_tam_ph45160.Pages.ManageDishPage
 import com.example.cum_tam_ph45160.Pages.ManagePage
 import com.example.cum_tam_ph45160.Pages.ManageTypeOfDishPage
+import com.example.cum_tam_ph45160.Pages.OrderPage
 import com.example.cum_tam_ph45160.Pages.ProductDetailPage
 import com.example.cum_tam_ph45160.Pages.SupportPage
 import com.example.cum_tam_ph45160.Pages.UpdateInfoPage
@@ -122,7 +124,8 @@ fun MainScreen(modifier: Modifier = Modifier) {
             composable("home") { HomePage(navController) }
             composable("cart") { CartPage(navController) }
             composable("manage") { ManagePage(navController) }
-            composable("support") { SupportPage() }
+            composable("support") { SupportPage(navController) }
+            composable("order") { OrderPage() }
             composable("dish") { ManageDishPage(navController) }
             composable("type_dish") { ManageTypeOfDishPage(navController) }
             composable("update_info") { UpdateInfoPage() }
@@ -154,7 +157,7 @@ fun BottomNavigationBar(navController: NavHostController) {
     val navItemsList = listOf(
         NavItem("Trang Chủ", Icons.Default.Home),
         NavItem("Giỏ Hàng", Icons.Default.ShoppingCart),
-        NavItem("Quản Lí", Icons.Default.Person),
+        NavItem("Lịch Sử", Icons.Default.List),
         NavItem("Hỗ Trợ", Icons.Default.Person)
     )
 
@@ -172,7 +175,7 @@ fun BottomNavigationBar(navController: NavHostController) {
                     when (index) {
                         0 -> navController.navigate("home")
                         1 -> navController.navigate("cart")
-                        2 -> navController.navigate("manage")
+                        2 -> navController.navigate("order")
                         3 -> navController.navigate("support")
                     }
                 },
@@ -195,16 +198,10 @@ fun Header(navController: NavController, onClick: (() -> Unit)? = null) {
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
 
-//    LaunchedEffect(navController.currentBackStackEntry) {
-//        val currentRoute = navController.currentBackStackEntry?.destination?.route
-//        showBackIcon = currentRoute != "home" && currentRoute != "cart" &&
-//                currentRoute != "manage" && currentRoute != "support"
-//
-//    }
 
     // Xác định khi nào hiển thị nút back
     val showBackIcon = currentRoute != "home" && currentRoute != "cart" &&
-            currentRoute != "manage" && currentRoute != "support"
+            currentRoute != "manage" && currentRoute != "support" && currentRoute != "order"
 
 
     TopAppBar(

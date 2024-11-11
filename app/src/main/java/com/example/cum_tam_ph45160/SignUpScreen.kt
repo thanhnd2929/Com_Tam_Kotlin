@@ -68,6 +68,13 @@ fun registerUser(fullName: String, username: String, email: String, password: St
         return
     }
 
+    // Kiểm tra định dạng email
+    val emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+"
+    if (!email.matches(emailPattern.toRegex())) {
+        Toast.makeText(context, "Địa chỉ email không hợp lệ", Toast.LENGTH_SHORT).show()
+        return
+    }
+
     // Tạo Retrofit instance và gọi API
     val apiService = RetrofitClient.instance
 

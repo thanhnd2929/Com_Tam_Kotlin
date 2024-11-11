@@ -60,9 +60,23 @@ class CartViewModel : ViewModel() {
         })
     }
 
-    fun checkOut() {
+   fun removeFromCart(productId: String) {
+       apiService.deleteFromCart(productId).enqueue(object : Callback<Void?> {
+           override fun onResponse(call: Call<Void?>, response: Response<Void?>) {
+               if (response.isSuccessful) {
+                   val updateCart = _carts.value?.filter { it.product._id != productId }
+                   _carts.value = updateCart
+                   Log.d("CartData", "Product $productId removed from cart.")
+               } else {
+                   Log.e("Err", "Failed to remove product: ${response.code()} ${response.message()}")
+               }
+           }
 
-    }
+           override fun onFailure(call: Call<Void?>, t: Throwable) {
+               Log.e("Err", "Failed to remove product: ${t.message}")
+           }
+       })
+   }
 
 
 }

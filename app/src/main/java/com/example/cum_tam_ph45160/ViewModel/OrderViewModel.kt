@@ -17,14 +17,20 @@ class OrderViewModel : ViewModel() {
     val orders: MutableLiveData<List<Order>?> get() = _orders
 
     fun fetchOrder() {
-        apiService.getOrders().enqueue(object : Callback<List<Order>?> {
-            override fun onResponse(call: Call<List<Order>?>, response: Response<List<Order>?>) {
+        apiService.getOrders().enqueue(object : Callback<List<Order>> {
+            override fun onResponse(call: Call<List<Order>>, response: Response<List<Order>>) {
                 if (response.isSuccessful) {
-                    response.body()?.let { orderList ->
+                    val orderList = response.body()
+                    if (orderList != null) {
+                        Log.d("fetchOrder", "Orders fetched successfully: $orderList")
                         _orders.value = orderList
-                    } ?: run {
+                    } else {
+                        Log.e("fetchOrder", "Response body is null")
                         _orders.value = emptyList()
                     }
+                } else {
+                    Log.e("fetchOrder", "Failed to fetch orders: ${response.errorBody()?.string()}")
+                    _orders.value = emptyList() // Xử lý khi không có kết quả
                 }
             }
 

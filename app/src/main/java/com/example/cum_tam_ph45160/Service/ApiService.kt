@@ -18,6 +18,7 @@ import com.example.cum_tam_ph45160.Model.TypeProduct.TypeProductRequest
 import com.example.cum_tam_ph45160.Model.TypeProduct.TypeProductResponse
 import retrofit2.Call
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
@@ -53,15 +54,18 @@ interface ApiService {
     @POST("products/cart")
     fun addToCart(@Body cartRequest: CartRequest) : Call<CartResponse>
 
+    @POST("products/checkout")
+    fun checkout(@Body checkoutRequest: CheckoutRequest): Call<CheckoutResponse>
 
     @GET("products/get-cart")
     fun getCart() : Call<List<CartData>>
 
 
-    @GET("products/get-cart") // Địa chỉ API của bạn
+    @GET("products/orders") // Địa chỉ API của bạn
     fun getOrders(): Call<List<Order>>
 
-    @POST("products/checkout")
-    fun checkout(@Body checkoutRequest: CheckoutRequest): Call<CheckoutResponse>
+
+    @DELETE("products/cart/remove/{id}")
+    fun deleteFromCart(@Path("id") productId: String): Call<Void>
 
 }
